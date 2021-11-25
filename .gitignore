@@ -1,0 +1,4 @@
+.idea
+/STM32F4/ADC/Polling/cmake-build-debug/
+/STM32F4/ADC/DMA/cmake-build-debug/
+/STM32F4/ADC/IT/cmake-build-debug/
