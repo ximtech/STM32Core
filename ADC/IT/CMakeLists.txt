@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 3.20)
-project(ADC_Polling VERSION 1.0 LANGUAGES C)
+project(ADC_IT VERSION 1.0 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 99)
 
-include(../../../cmake/CPM.cmake)
+include(../../cmake/CPM.cmake)
 
 CPMAddPackage(
         NAME DWTDelay
         GITHUB_REPOSITORY ximtech/DWTDelay
+        GIT_TAG origin/main)
+
+CPMAddPackage(
+        NAME Vector
+        GITHUB_REPOSITORY ximtech/Vector
         GIT_TAG origin/main)
 
 set(SOURCE_FILES ${PROJECT_NAME}.c include/${PROJECT_NAME}.h)
@@ -29,4 +34,5 @@ install(EXPORT ${PROJECT_NAME}Export
         FILE ${PROJECT_NAME}-config.cmake
         DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} DWT_Delay)
+target_link_libraries(${PROJECT_NAME} DWTDelay)
+target_link_libraries(${PROJECT_NAME} Vector)
