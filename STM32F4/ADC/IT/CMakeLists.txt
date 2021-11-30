@@ -15,12 +15,24 @@ CPMAddPackage(
         GITHUB_REPOSITORY ximtech/Vector
         GIT_TAG origin/main)
 
-set(SOURCE_FILES ADC_IT.c ADC_IT.h)
+set(SOURCE_FILES ${PROJECT_NAME}.c include/${PROJECT_NAME}.h)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
-set(ADC_BASE_DIR ..)
-target_include_directories(${PROJECT_NAME} PUBLIC ${ADC_BASE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}.h
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME})
+
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}Export
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME})
+
+install(EXPORT ${PROJECT_NAME}Export
+        FILE ${PROJECT_NAME}-config.cmake
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} DWTDelay)
 target_link_libraries(${PROJECT_NAME} Vector)

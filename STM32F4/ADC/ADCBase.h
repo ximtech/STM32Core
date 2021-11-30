@@ -1,7 +1,7 @@
 #pragma once
 
-#include <DWT_Delay.h>
-#include "stm32f4xx_ll_adc.h"
+#include "DWT_Delay.h"
+#include "main.h"
 
 typedef enum ADCStatus {
     ADC_OK,

@@ -15,14 +15,28 @@ CPMAddPackage(
         GITHUB_REPOSITORY ximtech/Vector
         GIT_TAG origin/main)
 
-set(SOURCE_FILES ADC_DMA.c ADC_DMA.h)
+set(DMA_UTILS_DIR ../../DMA)
+
+set(SOURCE_FILES ${PROJECT_NAME}.c include/${PROJECT_NAME}.h ${DMA_UTILS_DIR}/DMAUtils.c ${DMA_UTILS_DIR}/DMAUtils.h)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
+target_include_directories(${PROJECT_NAME} PUBLIC
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-set(ADC_BASE_DIR ..)
-set(DMA_UTILS_DIR ../../DMA)
-target_include_directories(${PROJECT_NAME} PUBLIC ${ADC_BASE_DIR} ${DMA_UTILS_DIR})
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}.h
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME})
+
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}Export
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME})
+
+install(EXPORT ${PROJECT_NAME}Export
+        FILE ${PROJECT_NAME}-config.cmake
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME})
+
+
 
 target_link_libraries(${PROJECT_NAME} DWTDelay)
 target_link_libraries(${PROJECT_NAME} Vector)

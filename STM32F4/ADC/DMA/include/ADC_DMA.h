@@ -1,10 +1,9 @@
 #pragma once
 
 #include <string.h>
-#include <Vector.h>
-
 #include "ADCBase.h"
 #include "DMAUtils.h"
+#include "Vector.h"
 
 typedef struct ADC_DMA {
     ADC_TypeDef *ADCx;

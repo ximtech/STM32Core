@@ -1,4 +1,4 @@
-#include "ADC.h"
+#include "ADC_Polling.h"
 
 #define ADC_STABILIZATION_TIME_US 3
 
