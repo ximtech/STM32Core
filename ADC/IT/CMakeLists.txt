@@ -17,18 +17,21 @@ CPMAddPackage(
 
 set(ADC_IT_DIRECTORY
         ${DWT_DELAY_DIRECTORY}
-        ${ADC_SOURCE_DIR}/ADC
+        ${STM32_CORE_SOURCE_DIR}/ADC
         ${ADC_IT_SOURCE_DIR}/include
         CACHE STRING "IT ADC directories include to the main project" FORCE)
 
 set(ADC_IT_SOURCES
         ${DWT_DELAY_SOURCES}
-        ${ADC_SOURCE_DIR}/ADC/ADCBase.c
         ${ADC_IT_SOURCE_DIR}/${PROJECT_NAME}.c
         ${ADC_IT_SOURCE_DIR}/include/${PROJECT_NAME}.h
         CACHE STRING "IT ADC source files include to the main project" FORCE)
 
-set(SOURCE_FILES ${PROJECT_NAME}.c include/${PROJECT_NAME}.h)
+set(SOURCE_FILES
+        ${PROJECT_NAME}.c
+        include/${PROJECT_NAME}.h
+        ${STM32_CORE_SOURCE_DIR}/ADC/ADCBase.h)
+
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
