@@ -14,14 +14,14 @@ set(ADC_POLLING_DIRECTORY
         ${DWT_DELAY_DIRECTORY}
         ${ADC_SOURCE_DIR}/ADC
         ${ADC_Polling_SOURCE_DIR}/include
-        CACHE STRING "Polling ADC directories include to the main project")
+        CACHE STRING "Polling ADC directories include to the main project" FORCE)
 
 set(ADC_POLLING_SOURCES
         ${DWT_DELAY_SOURCES}
         ${ADC_SOURCE_DIR}/ADC/ADCBase.c
         ${ADC_Polling_SOURCE_DIR}/${PROJECT_NAME}.c
         ${ADC_Polling_SOURCE_DIR}/include/${PROJECT_NAME}.h
-        CACHE STRING "Polling ADC source files include to the main project")
+        CACHE STRING "Polling ADC source files include to the main project" FORCE)
 
 set(SOURCE_FILES ${PROJECT_NAME}.c include/${PROJECT_NAME}.h)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})

@@ -19,14 +19,14 @@ set(ADC_DMA_DIRECTORY
         ${DWT_DELAY_DIRECTORY}
         ${ADC_SOURCE_DIR}/ADC
         ${ADC_DMA_SOURCE_DIR}/include
-        CACHE STRING "DMA ADC directories include to the main project")
+        CACHE STRING "DMA ADC directories include to the main project" FORCE)
 
 set(ADC_DMA_SOURCES
         ${DWT_DELAY_SOURCES}
         ${ADC_SOURCE_DIR}/ADC/ADCBase.c
         ${ADC_DMA_SOURCE_DIR}/${PROJECT_NAME}.c
         ${ADC_DMA_SOURCE_DIR}/include/${PROJECT_NAME}.h
-        CACHE STRING "DMA ADC source files include to the main project")
+        CACHE STRING "DMA ADC source files include to the main project" FORCE)
 
 set(DMA_UTILS_DIR ../../DMA)
 
