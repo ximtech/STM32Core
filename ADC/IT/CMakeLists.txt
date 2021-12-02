@@ -15,9 +15,25 @@ CPMAddPackage(
         GITHUB_REPOSITORY ximtech/Vector
         GIT_TAG origin/main)
 
+set(ADC_IT_DIRECTORY
+        ${DWT_DELAY_DIRECTORY}
+        ${ADC_SOURCE_DIR}/ADC
+        ${ADC_IT_SOURCE_DIR}/include
+        CACHE STRING "IT ADC directories include to the main project")
+
+set(ADC_IT_SOURCES
+        ${DWT_DELAY_SOURCES}
+        ${ADC_SOURCE_DIR}/ADC/ADCBase.c
+        ${ADC_IT_SOURCE_DIR}/${PROJECT_NAME}.c
+        ${ADC_IT_SOURCE_DIR}/include/${PROJECT_NAME}.h
+        CACHE STRING "IT ADC source files include to the main project")
+
 set(SOURCE_FILES ${PROJECT_NAME}.c include/${PROJECT_NAME}.h)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
+
+target_link_libraries(${PROJECT_NAME} Vector)
+target_link_libraries(${PROJECT_NAME} DWT_Delay)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -34,5 +50,4 @@ install(EXPORT ${PROJECT_NAME}Export
         FILE ${PROJECT_NAME}-config.cmake
         DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} DWTDelay)
-target_link_libraries(${PROJECT_NAME} Vector)
+
