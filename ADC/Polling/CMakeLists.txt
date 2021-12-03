@@ -18,6 +18,7 @@ set(ADC_POLLING_DIRECTORY
 
 set(ADC_POLLING_SOURCES
         ${DWT_DELAY_SOURCES}
+        ${STM32_CORE_SOURCE_DIR}/ADC/ADCBase.h
         ${ADC_Polling_SOURCE_DIR}/${PROJECT_NAME}.c
         ${ADC_Polling_SOURCE_DIR}/include/${PROJECT_NAME}.h
         CACHE STRING "Polling ADC source files include to the main project" FORCE)

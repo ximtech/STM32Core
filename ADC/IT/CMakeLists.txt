@@ -23,6 +23,7 @@ set(ADC_IT_DIRECTORY
 
 set(ADC_IT_SOURCES
         ${DWT_DELAY_SOURCES}
+        ${STM32_CORE_SOURCE_DIR}/ADC/ADCBase.h
         ${ADC_IT_SOURCE_DIR}/${PROJECT_NAME}.c
         ${ADC_IT_SOURCE_DIR}/include/${PROJECT_NAME}.h
         CACHE STRING "IT ADC source files include to the main project" FORCE)
@@ -52,5 +53,3 @@ install(TARGETS ${PROJECT_NAME}
 install(EXPORT ${PROJECT_NAME}Export
         FILE ${PROJECT_NAME}-config.cmake
         DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME})
-
-
