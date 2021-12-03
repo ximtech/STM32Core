@@ -81,7 +81,7 @@ int main(void) {
     printAtPositionLCD(0, 2, "ADC Interrupt");
     printAtPositionLCD(1, 2, "Regular Continuous");
 
-    PollingADC adc = initRegularPollingADC(ADC1, ADC_CHANNEL_0);
+    ADC_Polling adc = initRegularPollingADC(ADC1, ADC_CHANNEL_0);
     startADC(adc.ADCx);
 
     while (1) {

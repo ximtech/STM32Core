@@ -81,7 +81,7 @@ int main(void) {
     printAtPositionLCD(0, 2, "ADC");
     printAtPositionLCD(1, 0, "Injected Once");
 
-    PollingADC adc = initInjectedPollingADC(ADC1, ADC_CHANNEL_0, ADC_INJ_RANK_1);
+    ADC_Polling adc = initInjectedPollingADC(ADC1, ADC_CHANNEL_0, ADC_INJ_RANK_1);
     startADC(adc.ADCx);
 
     while (1) {
@@ -89,7 +89,7 @@ int main(void) {
 		ADCStatus status = readConversionDataADC(adc.ADCx, ADC_INJECTED_CHANNEL);
 		if (status == ADC_OK) {
 			getADCValue(&adc);
-			printfAtPositionLCD(2, 0, "%d ", ADCValue);
+			printfAtPositionLCD(2, 0, "%d ", adc.value);
 			printfAtPositionLCD(3, 0, "%.2f ", convertADCValueToVoltage(adc.ADCx, adc.value, 3.275));
 			LL_mDelay(100);
 		}
