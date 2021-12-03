@@ -18,8 +18,8 @@ I2C_IT *initBufferedI2C_IT(I2C_TypeDef *I2Cx, I2CAddressingMode addressingMode, 
     I2CInstance.I2Cx = I2Cx;
     I2CInstance.timeout = timeout;
     I2CInstance.addressingMode = addressingMode;
-    I2CInstance.RxBuffer = getRingBufferInstance(BYTE_BUFFER, rxBufferSize);
-    I2CInstance.TxBuffer = getRingBufferInstance(BYTE_BUFFER, txBufferSize);
+    I2CInstance.RxBuffer = getRingBufferInstance(rxBufferSize);
+    I2CInstance.TxBuffer = getRingBufferInstance(txBufferSize);
 
     LL_I2C_Enable(I2Cx);
     return cacheI2CInstance(I2CInstance);
@@ -62,15 +62,13 @@ void interruptEventCallbackI2C3() {
 }
 
 void transmitByteAsMasterI2C_IT(I2C_IT *I2CPointer, uint8_t byte) {
-    while (isFull(I2CPointer->TxBuffer));
-    addByte(I2CPointer->TxBuffer, byte);
+    while (isRingBufferFull(I2CPointer->TxBuffer));
+    ringBufferAdd(I2CPointer->TxBuffer, byte);
     LL_I2C_EnableIT_TX(I2CPointer->I2Cx);
 }
 
 uint8_t receiveByteAsMasterI2C_IT(I2C_IT *I2CPointer) {
-    uint8_t byte = 0;
-    getByte(I2CPointer->RxBuffer, &byte);
-    return byte;
+    return ringBufferGet(I2CPointer->RxBuffer);
 }
 
 uint8_t receiveByteAsMasterWithNackI2C_IT(I2C_IT *I2CPointer) {
@@ -87,12 +85,12 @@ uint8_t receiveByteAsMasterWithNackI2C_IT(I2C_IT *I2CPointer) {
 void transmitDataAsMasterI2C_IT(I2C_IT *I2CPointer, uint32_t address, uint8_t *txData, uint16_t size) {
     while (!LL_I2C_IsActiveFlag_TXE(I2CPointer->I2Cx));
     for (int i = 0; i < size; i++) {
-        if (isNotFull(I2CPointer->TxBuffer)) {
-            addByte(I2CPointer->TxBuffer, txData[i]);
+        if (isRingBufferNotFull(I2CPointer->TxBuffer)) {
+            ringBufferAdd(I2CPointer->TxBuffer, txData[i]);
         } else {
             LL_I2C_EnableIT_TX(I2CPointer->I2Cx);
-            while (isFull(I2CPointer->TxBuffer));
-            addByte(I2CPointer->TxBuffer, txData[i]);
+            while (isRingBufferFull(I2CPointer->TxBuffer));
+            ringBufferAdd(I2CPointer->TxBuffer, txData[i]);
         }
     }
     startMasterI2C_IT(I2CPointer, address, I2C_WRITE_TO_SLAVE);
@@ -102,41 +100,42 @@ void transmitDataAsMasterI2C_IT(I2C_IT *I2CPointer, uint32_t address, uint8_t *t
 void receiveDataAsMasterI2C_IT(I2C_IT *I2CPointer, uint32_t address, uint8_t *rxData, uint16_t size) {
     startMasterI2C_IT(I2CPointer, address, I2C_READ_FROM_SLAVE);
     while (LL_I2C_IsActiveFlag_RXNE(I2CPointer->I2Cx) == RESET);
-    uint8_t byte = 0;
-    for (uint16_t i = 0; getByte(I2CPointer->RxBuffer, &byte) && (i < size); i++) {
-        rxData[i] = byte;
+    for (uint16_t i = 0; isRingBufferNotEmpty(I2CPointer->RxBuffer) && (i < size); i++) {
+        rxData[i] = ringBufferGet(I2CPointer->RxBuffer);
     }
     stopMasterI2C_IT(I2CPointer);
 }
 
 bool isRxBufferEmptyI2C_IT(I2C_IT *I2CPointer) {
-    return isEmpty(I2CPointer->RxBuffer);
+    return isRingBufferEmpty(I2CPointer->RxBuffer);
 }
 
 bool isRxBufferNotEmptyI2C_IT(I2C_IT *I2CPointer) {
-    return isNotEmpty(I2CPointer->RxBuffer);
+    return isRingBufferNotEmpty(I2CPointer->RxBuffer);
 }
 
 bool isTxBufferEmptyI2C_IT(I2C_IT *I2CPointer) {
-    return isEmpty(I2CPointer->TxBuffer);
+    return isRingBufferEmpty(I2CPointer->TxBuffer);
 }
 
 bool isTxBufferNotEmptyI2C_IT(I2C_IT *I2CPointer) {
-    return isNotEmpty(I2CPointer->TxBuffer);
+    return isRingBufferNotEmpty(I2CPointer->TxBuffer);
 }
 
 void resetRxBufferedI2C_IT(I2C_IT *I2CPointer) {
-    reset(I2CPointer->RxBuffer);
+    ringBufferReset(I2CPointer->RxBuffer);
 }
 
 void resetTxBufferedI2C_IT(I2C_IT *I2CPointer) {
-    reset(I2CPointer->TxBuffer);
+    ringBufferReset(I2CPointer->TxBuffer);
 }
 
 void deleteI2C_IT(I2C_IT *I2CPointer) {
-    delete(I2CPointer->RxBuffer);
-    delete(I2CPointer->TxBuffer);
-    free(I2CPointer);
+    if (I2CPointer != NULL) {
+        ringBufferDelete(I2CPointer->RxBuffer);
+        ringBufferDelete(I2CPointer->TxBuffer);
+        free(I2CPointer);
+    }
 }
 
 static I2C_IT *cacheI2CInstance(I2C_IT I2CInstance) {
@@ -185,16 +184,15 @@ static void sendSlaveAddress(I2C_IT *I2CPointer) {
 }
 
 static void rxInterruptCallbackI2C(I2C_IT *I2CPointer) {
-    if (isNotFull(I2CPointer->RxBuffer)) {        // when buffer overflow, doesn't overwrite non read data
+    if (isRingBufferNotFull(I2CPointer->RxBuffer)) {        // when buffer overflow, doesn't overwrite non read data
         uint8_t byte = LL_I2C_ReceiveData8(I2CPointer->I2Cx);
-        addByte(I2CPointer->RxBuffer, byte);
+        ringBufferAdd(I2CPointer->RxBuffer, byte);
     }
 }
 
 static void txInterruptCallbackI2C(I2C_IT *I2CPointer) {
-    uint8_t byte = 0;
-    if (getByte(I2CPointer->TxBuffer, &byte)) {
-        LL_I2C_TransmitData8(I2CPointer->I2Cx, byte);
+    if (isRingBufferNotEmpty(I2CPointer->TxBuffer)) {
+        LL_I2C_TransmitData8(I2CPointer->I2Cx, ringBufferGet(I2CPointer->TxBuffer));
     } else {
         LL_I2C_DisableIT_TX(I2CPointer->I2Cx);// tx buffer empty, disable interrupt
     }

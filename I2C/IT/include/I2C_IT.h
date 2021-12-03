@@ -17,8 +17,8 @@ typedef struct I2C_IT {
 } I2C_IT;
 
 I2C_IT *initBufferedI2C_IT(I2C_TypeDef *I2Cx, I2CAddressingMode addressingMode, uint32_t rxBufferSize, uint32_t txBufferSize, uint32_t timeout);
-void startMasterI2C_IT(BufferedI2C *i2c, uint32_t address, I2CDataDirection direction);
-void stopMasterI2C_IT(BufferedI2C *i2c);
+void startMasterI2C_IT(I2C_IT *i2c, uint32_t address, I2CDataDirection direction);
+void stopMasterI2C_IT(I2C_IT *i2c);
 
 void interruptEventCallbackI2C1();// Interrupt callback functions, use by specific I2C number at stm32f4xx_it.c for RX and TX
 void interruptEventCallbackI2C2();
