@@ -229,9 +229,9 @@ static I2CStatus sendSlaveAddress(I2C_DMA *I2CDmaInstance, uint32_t address, I2C
 }
 
 static bool loopWhileCheckFunctionStatusReset(I2C_DMA *I2CDmaInstance, uint32_t (*checkFunctionPointer)(I2C_TypeDef *)) {
-    uint32_t startTime = currentMilliseconds();
+    uint32_t startTime = currentMilliSeconds();
     while (checkFunctionPointer(I2CDmaInstance->I2Cx) == RESET) {
-        if ((currentMilliseconds() - startTime) >= I2CDmaInstance->timeout) {
+        if ((currentMilliSeconds() - startTime) >= I2CDmaInstance->timeout) {
             return false;
         }
     }
