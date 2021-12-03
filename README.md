@@ -119,6 +119,9 @@ void DMA2_Stream0_IRQHandler(void) {
 }
 ```
 
+## I2C
+...
+
 ## In progress
 
 - SPI
