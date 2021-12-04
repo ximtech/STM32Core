@@ -1,4 +1,4 @@
-#include "SPI.h"
+#include "SPI_Polling.h"
 
 SPI_Polling initSPI(SPI_TypeDef *SPIx, GPIO_TypeDef *chipSelectPort, uint32_t chipSelectPin) {
     SPI_Polling spiInstance = {0};
