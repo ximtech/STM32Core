@@ -21,7 +21,7 @@ CPMAddPackage(
         GIT_TAG origin/main)
 ```
 
-## ADC
+# ADC
 
 An ADC (Analog-To-Digital) converter is an electronic circuit that takes in an analog voltage as input and converts it
 into digital data, a value that represents the voltage level in binary code.
@@ -121,7 +121,7 @@ void DMA2_Stream0_IRQHandler(void) {
 }
 ```
 
-## I2C
+# I2C
 Inter-Integrated Circuit (I2C) is a communication bus protocol developed by Philips Semiconductor (now NXP Semiconductors) in 1982. 
 It is a relatively slow protocol but has seen widespread use due to its simplicity and robustness.
 
@@ -129,7 +129,7 @@ It is a relatively slow protocol but has seen widespread use due to its simplici
 
 1. Start project with STM32CubeMX:
    * Configuration for Polling I2C:
-      * [Base configuration](https://github.com/ximtech/STM32Core/blob/main/I2C/Polling/example/config.PNG)
+      * [Base config](https://github.com/ximtech/STM32Core/blob/main/I2C/Polling/example/config.PNG)
    * Configuration for Interrupt I2C:
       * [Main settings](https://github.com/ximtech/STM32Core/blob/main/I2C/IT/example/config_1.PNG)
       * [NVIC settings](https://github.com/ximtech/STM32Core/blob/main/I2C/IT/example/config_2.PNG)
@@ -169,18 +169,63 @@ target_link_libraries(${PROJECT_NAME}.elf I2C_DMA)
    * [Find Device](https://github.com/ximtech/STM32Core/blob/main/I2C/Polling/example/example.c)
 2. **TODO: add more examples**
 
-## USART
+# USART
 The USART peripheral is used to interconnect STM32 MPU devices with other systems, typically via RS232 or RS485 protocols.
 
 ### Project configuration
 
 1. Start project with STM32CubeMX:
    * Configuration for Polling USART:
-   ...
+      * [Base config](https://github.com/ximtech/STM32Core/blob/main/USART/Polling/example/config.PNG)
+   * Configuration for Interrupt USART:
+      * [Base config](https://github.com/ximtech/STM32Core/blob/main/USART/IT/example/config_1.PNG)
+      * [NVIC settings](https://github.com/ximtech/STM32Core/blob/main/USART/IT/example/config_2.PNG)
+   * Configuration for DMA USART:
+      * [Base config](https://github.com/ximtech/STM32Core/blob/main/USART/DMA/example/config_1.PNG)
+      * [NVIC settings](https://github.com/ximtech/STM32Core/blob/main/USART/DMA/example/config_2.PNG)
+      * [DMA config](https://github.com/ximtech/STM32Core/blob/main/USART/DMA/example/config_3.PNG)
 
+2. Select: Project Manager -> Advanced Settings -> USART -> LL
+3. Generate Code
+4. Add sources to project: 
+```cmake
+# add in CmakeLists_template.txt or directly to CmakeLists.txt
+include_directories(${includes}
+        ${USART_POLLING_DIRECTORY}
+        ${USART_IT_DIRECTORY}
+        ${USART_DMA_DIRECTORY})
 
+file(GLOB_RECURSE SOURCES ${sources}
+        ${USART_POLLING_SOURCES}
+        ${USART_IT_SOURCES}
+        ${USART_DMA_SOURCES})
 
-## In progress
+# link libraries
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/USART/DMA)
+target_link_libraries(${PROJECT_NAME}.elf USART_DMA)
 
-- SPI
-- UART
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/USART/IT)
+target_link_libraries(${PROJECT_NAME}.elf USART_IT)
+
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/USART/Polling)
+target_link_libraries(${PROJECT_NAME}.elf USART_Polling)
+```
+
+3. Then Build -> Rebuild Project
+
+## Usage
+1. Polling USART code example:
+   * [Echo example](https://github.com/ximtech/STM32Core/blob/main/USART/Polling/example/example.c)
+2. Interrupt USART code example:
+   * [Echo example](https://github.com/ximtech/STM32Core/blob/main/USART/IT/example/example.c)
+   * [Callback usage](https://github.com/ximtech/STM32Core/blob/main/USART/IT/example/stm32f4xx_it.c)
+3. DMA USART code example:
+   * [Echo example](https://github.com/ximtech/STM32Core/blob/main/USART/DMA/example/example.c)
+   * [Callback usage](https://github.com/ximtech/STM32Core/blob/main/USART/DMA/example/stm32f4xx_it.c)
+
+# SPI
+SPI is an acronym for (Serial Peripheral Interface) pronounced as “S-P-I” or “Spy”. Which is an interface bus typically 
+used for serial communication between microcomputer systems and other devices, memories, and sensors.
+
+### Project configuration
+...
