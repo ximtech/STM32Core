@@ -6,8 +6,7 @@
 #include "I2CBase.h"
 #include "DMAUtils.h"
 #include "DWT_Delay.h"
-
-#define NUMBER_OF_I2C_INSTANCES 1 // Provide number of used I2C_DMA instances at DMA mode, one by default
+#include "Vector.h"
 
 typedef struct I2CData {
     uint32_t stream;

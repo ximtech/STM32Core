@@ -1,8 +1,9 @@
 #include "I2C_DMA.h"
 
-static I2C_DMA *I2C_DMAInstanceArray[NUMBER_OF_I2C_INSTANCES] = {[0 ... NUMBER_OF_I2C_INSTANCES - 1] = NULL};
+#define INITIAL_NUMBER_OF_I2C_DMA_INSTANCES 1
 
-static I2C_DMA *cacheI2CInstance(I2C_DMA *I2CDmaInstance);
+static Vector I2C_DMAInstanceCache = NULL;
+
 static I2CStatus startAsMasterI2C(I2C_DMA *I2CDmaInstance, uint32_t address, I2CDataDirection direction);
 static void stopAsMasterI2C(I2C_DMA *I2CDmaInstance);
 static I2CStatus sendSlaveAddress(I2C_DMA *I2CDmaInstance, uint32_t address, I2CDataDirection direction);
@@ -73,8 +74,10 @@ I2C_DMA *initI2C_DMA(I2C_TypeDef *I2Cx,
         I2CDmaInstance->txData->isTransferComplete = false;
     }
 
+    initSingletonVector(&I2C_DMAInstanceCache, INITIAL_NUMBER_OF_I2C_DMA_INSTANCES);
+    vectorAdd(I2C_DMAInstanceCache, I2CDmaInstance);
     LL_I2C_Enable(I2Cx);
-    return cacheI2CInstance(I2CDmaInstance);
+    return I2CDmaInstance;
 }
 
 I2C_DMA *initI2C_DMA_RX(I2C_TypeDef *I2Cx,
@@ -96,8 +99,8 @@ I2C_DMA *initI2C_DMA_TX(I2C_TypeDef *I2Cx,
 }
 
 void transferCompleteCallbackI2C_DMA(DMA_TypeDef *DMAx, uint32_t stream) {
-    for (uint8_t i = 0; i < NUMBER_OF_I2C_INSTANCES; i++) {
-        I2C_DMA *I2CDmaPointer = I2C_DMAInstanceArray[i];
+    for (uint32_t i = 0; i < getVectorSize(I2C_DMAInstanceCache); i++) {
+        I2C_DMA *I2CDmaPointer = vectorGet(I2C_DMAInstanceCache, i);
         if (I2CDmaPointer->DMAx == DMAx && I2CDmaPointer->rxData != NULL && I2CDmaPointer->rxData->stream == stream) {
             if (isTransferCompleteInterruptEnabledDMA(DMAx, stream)) {
                 disableTransferCompleteInterruptDMA(DMAx, stream);
@@ -181,16 +184,6 @@ void deleteI2C_DMA(I2C_DMA *I2CDmaPointer) {
         }
         free(I2CDmaPointer);
     }
-}
-
-static I2C_DMA *cacheI2CInstance(I2C_DMA *I2CDmaInstance) {
-    for (uint8_t i = 0; i < NUMBER_OF_I2C_INSTANCES; i++) {
-        if (I2C_DMAInstanceArray[i] == NULL) {
-            I2C_DMAInstanceArray[i] = I2CDmaInstance;
-            return I2C_DMAInstanceArray[i];
-        }
-    }
-    return NULL;
 }
 
 static I2CStatus startAsMasterI2C(I2C_DMA *I2CDmaInstance, uint32_t address, I2CDataDirection direction) {
