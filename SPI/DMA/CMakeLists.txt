@@ -3,6 +3,13 @@ project(SPI_DMA VERSION 1.0 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 99)
 
+include(../../cmake/CPM.cmake)
+
+CPMAddPackage(
+        NAME Vector
+        GITHUB_REPOSITORY ximtech/Vector
+        GIT_TAG origin/main)
+
 set(DMA_UTILS_DIR ${STM32_CORE_SOURCE_DIR}/DMA)
 
 set(SPI_DMA_DIRECTORY
@@ -26,6 +33,8 @@ set(SOURCE_FILES
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
+
+target_link_libraries(${PROJECT_NAME} Vector)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>

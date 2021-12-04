@@ -5,8 +5,7 @@
 
 #include "main.h"
 #include "DMAUtils.h"
-
-#define NUMBER_OF_SPI_INSTANCES 1 // Provide number of used SPI_DMA instances at DMA mode, one by default
+#include "Vector.h"
 
 typedef struct SPIData {
     uint32_t stream;

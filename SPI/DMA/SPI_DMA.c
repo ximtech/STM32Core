@@ -1,9 +1,10 @@
 #include "SPI_DMA.h"
 
-static SPI_DMA *SPI_DMAInstanceArray[NUMBER_OF_SPI_INSTANCES] = {[0 ... NUMBER_OF_SPI_INSTANCES - 1] = NULL};
+#define INITIAL_NUMBER_OF_SPI_DMA_INSTANCES 1
+
+static Vector SPIInstanceCache = NULL;
 
 static SPIData *createSpiData(SPI_TypeDef *SPIx, uint32_t bufferSize);
-static SPI_DMA *cacheSPIInstance(SPI_DMA *SPIDmaInstance);
 static inline void chipSelectSetSPI(SPI_DMA *SPIDmaInstance);
 static inline void chipSelectResetSPI(SPI_DMA *SPIDmaInstance);
 
@@ -65,11 +66,13 @@ SPI_DMA *initSPI_DMA(SPI_TypeDef *SPIx,
         SPIDmaInstance->txData->isTransferComplete = false;
     }
 
+    initSingletonVector(&SPIInstanceCache, INITIAL_NUMBER_OF_SPI_DMA_INSTANCES);
+    vectorAdd(SPIInstanceCache, SPIDmaInstance);
     LL_SPI_EnableDMAReq_TX(SPIx);
     LL_SPI_EnableDMAReq_RX(SPIx);
     LL_SPI_Enable(SPIx);
 
-    return cacheSPIInstance(SPIDmaInstance);
+    return SPIDmaInstance;
 }
 
 SPI_DMA *initSPI_DMA_RX(SPI_TypeDef *SPIx,
@@ -91,8 +94,8 @@ SPI_DMA *initSPI_DMA_TX(SPI_TypeDef *SPIx,
 }
 
 void transferCompleteCallbackSPI_DMA(DMA_TypeDef *DMAx, uint32_t stream) {
-    for (uint8_t i = 0; i < NUMBER_OF_SPI_INSTANCES; i++) {
-        SPI_DMA *SPIDmaPointer = SPI_DMAInstanceArray[i];
+    for (uint32_t i = 0; i < getVectorSize(SPIInstanceCache); i++) {
+        SPI_DMA *SPIDmaPointer = vectorGet(SPIInstanceCache, i);
         if (SPIDmaPointer->DMAx == DMAx && SPIDmaPointer->rxData != NULL && SPIDmaPointer->rxData->stream == stream) {
             if (isTransferCompleteInterruptEnabledDMA(SPIDmaPointer->DMAx, stream)) {
                 disableTransferCompleteInterruptDMA(SPIDmaPointer->DMAx, stream);
@@ -159,6 +162,8 @@ void deleteSPI_DMA(SPI_DMA *SPIDmaPointer) {
             free(SPIDmaPointer->txData);
         }
         free(SPIDmaPointer);
+        vectorDelete(SPIInstanceCache);
+        SPIInstanceCache = NULL;
     }
 }
 
@@ -182,16 +187,6 @@ static SPIData *createSpiData(SPI_TypeDef *SPIx, uint32_t bufferSize) {
             spiData->halfWordBufferPointer = dataBufferPointer;
         }
         return spiData;
-    }
-    return NULL;
-}
-
-static SPI_DMA *cacheSPIInstance(SPI_DMA *SPIDmaInstance) {
-    for (uint8_t i = 0; i < NUMBER_OF_SPI_INSTANCES; i++) {
-        if (SPI_DMAInstanceArray[i] == NULL) {
-            SPI_DMAInstanceArray[i] = SPIDmaInstance;
-            return SPI_DMAInstanceArray[i];
-        }
     }
     return NULL;
 }

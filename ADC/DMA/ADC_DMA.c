@@ -109,6 +109,7 @@ void deleteADC_DMA(ADC_DMA *ADCPointer) {
         free(ADCPointer);
     }
 	vectorDelete(ADCInstanceCache);
+    ADCInstanceCache = NULL;
 }
 
 static void resolveExternalTriggering(ADC_DMA *ADCPointer) {
