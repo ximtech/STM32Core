@@ -1,6 +1,6 @@
 #include "USART_DMA.h"
 
-static USART_DMA *USART_DMAInstanceArray[NUMBER_OF_USART_INSTANCES] = {[0 ... NUMBER_OF_USART_INSTANCES - 1] = NULL};
+static USART_DMA *USART_DMAInstanceArray[NUMBER_OF_USART_DMA_INSTANCES] = {[0 ... NUMBER_OF_USART_DMA_INSTANCES - 1] = NULL};
 
 static USART_DMA *cacheUSARTInstance(USART_DMA *USARTDmaInstance);
 static void interruptCallbackHandler(USART_DMA *USARTDmaPointer);
@@ -77,7 +77,7 @@ USART_DMA *initUSART_DMA_TX(USART_TypeDef *USARTx, DMA_TypeDef *DMAx, uint32_t t
 }
 
 void transferCompleteCallbackUSART_DMA(DMA_TypeDef *DMAx, uint32_t stream) {
-    for (uint8_t i = 0; i < NUMBER_OF_USART_INSTANCES; i++) {
+    for (uint8_t i = 0; i < NUMBER_OF_USART_DMA_INSTANCES; i++) {
         USART_DMA *USARTDmaPointer = USART_DMAInstanceArray[i];
         if (USARTDmaPointer->DMAx == DMAx && USARTDmaPointer->rxData != NULL && USARTDmaPointer->rxData->stream == stream) {
             if (isTransferCompleteInterruptEnabledDMA(USARTDmaPointer->DMAx, stream)) {
@@ -98,7 +98,7 @@ void transferCompleteCallbackUSART_DMA(DMA_TypeDef *DMAx, uint32_t stream) {
 }
 
 void interruptCallbackUSART(USART_TypeDef *USARTx) {
-    for (uint8_t i = 0; i < NUMBER_OF_USART_INSTANCES; i++) {
+    for (uint8_t i = 0; i < NUMBER_OF_USART_DMA_INSTANCES; i++) {
         if (USART_DMAInstanceArray[i] != NULL && USART_DMAInstanceArray[i]->USARTx == USARTx) {
             interruptCallbackHandler(USART_DMAInstanceArray[i]);
             break;
@@ -166,7 +166,7 @@ void deleteUSART_DMA(USART_DMA *USARTDmaPointer) {
 }
 
 static USART_DMA *cacheUSARTInstance(USART_DMA *USARTDmaInstance) {
-    for (uint8_t i = 0; i < NUMBER_OF_USART_INSTANCES; i++) {
+    for (uint8_t i = 0; i < NUMBER_OF_USART_DMA_INSTANCES; i++) {
         if (USART_DMAInstanceArray[i] == NULL) {
             USART_DMAInstanceArray[i] = USARTDmaInstance;
             return USART_DMAInstanceArray[i];

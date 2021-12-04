@@ -6,7 +6,7 @@
 #include "main.h"
 #include "DMAUtils.h"
 
-#define NUMBER_OF_USART_INSTANCES 1 // Provide number of used USART_TypeDef instances at DMA mode
+#define NUMBER_OF_USART_DMA_INSTANCES 1 // Provide number of used USART_TypeDef instances at DMA mode
 
 typedef struct USARTData {
     uint32_t stream;
