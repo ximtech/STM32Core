@@ -26,6 +26,8 @@ CPMAddPackage(
 An ADC (Analog-To-Digital) converter is an electronic circuit that takes in an analog voltage as input and converts it
 into digital data, a value that represents the voltage level in binary code.
 
+### Project configuration
+
 1. Start project with STM32CubeMX:
     * Configuration for Polling ADC:
         * [Regular channel](https://github.com/ximtech/STM32Core/blob/main/ADC/Polling/example/config_regular_channel.PNG)
@@ -120,10 +122,65 @@ void DMA2_Stream0_IRQHandler(void) {
 ```
 
 ## I2C
-...
+Inter-Integrated Circuit (I2C) is a communication bus protocol developed by Philips Semiconductor (now NXP Semiconductors) in 1982. 
+It is a relatively slow protocol but has seen widespread use due to its simplicity and robustness.
+
+### Project configuration
+
+1. Start project with STM32CubeMX:
+   * Configuration for Polling I2C:
+      * [Base configuration](https://github.com/ximtech/STM32Core/blob/main/I2C/Polling/example/config.PNG)
+   * Configuration for Interrupt I2C:
+      * [Main settings](https://github.com/ximtech/STM32Core/blob/main/I2C/IT/example/config_1.PNG)
+      * [NVIC settings](https://github.com/ximtech/STM32Core/blob/main/I2C/IT/example/config_2.PNG)
+   * Configuration for DMA I2C:
+      * [DMA config](https://github.com/ximtech/STM32Core/blob/main/I2C/DMA/example/config_1.PNG)
+
+2. Select: Project Manager -> Advanced Settings -> I2C -> LL
+3. Generate Code
+4. Add sources to project:
+```cmake
+# add in CmakeLists_template.txt or directly to CmakeLists.txt
+include_directories(${includes}
+        ${I2C_POLLING_DIRECTORY}
+        ${I2C_IT_DIRECTORY}
+        ${I2C_DMA_DIRECTORY})
+
+file(GLOB_RECURSE SOURCES ${sources}
+        ${I2C_POLLING_SOURCES}
+        ${I2C_IT_SOURCES}
+        ${I2C_DMA_SOURCES})
+
+# link libraries
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/I2C/Polling)
+target_link_libraries(${PROJECT_NAME}.elf I2C_Polling)
+
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/I2C/IT)
+target_link_libraries(${PROJECT_NAME}.elf I2C_IT)
+
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/I2C/DMA)
+target_link_libraries(${PROJECT_NAME}.elf I2C_DMA)
+```
+
+3. Then Build -> Rebuild Project
+
+## Usage
+1. Polling I2C code examples:
+   * [Find Device](https://github.com/ximtech/STM32Core/blob/main/I2C/Polling/example/example.c)
+2. **TODO: add more examples**
+
+## USART
+The USART peripheral is used to interconnect STM32 MPU devices with other systems, typically via RS232 or RS485 protocols.
+
+### Project configuration
+
+1. Start project with STM32CubeMX:
+   * Configuration for Polling USART:
+   ...
+
+
 
 ## In progress
 
 - SPI
 - UART
-- I2C
