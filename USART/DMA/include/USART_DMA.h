@@ -1,12 +1,10 @@
 #pragma once
 
 #include <string.h>
-#include <stdlib.h>
 
 #include "main.h"
 #include "DMAUtils.h"
-
-#define NUMBER_OF_USART_DMA_INSTANCES 1 // Provide number of used USART_TypeDef instances at DMA mode
+#include "Vector.h"
 
 typedef struct USARTData {
     uint32_t stream;

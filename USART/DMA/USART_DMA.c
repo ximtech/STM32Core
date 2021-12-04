@@ -1,8 +1,9 @@
 #include "USART_DMA.h"
 
-static USART_DMA *USART_DMAInstanceArray[NUMBER_OF_USART_DMA_INSTANCES] = {[0 ... NUMBER_OF_USART_DMA_INSTANCES - 1] = NULL};
+#define INITIAL_NUMBER_OF_USART_DMA_INSTANCES 1
 
-static USART_DMA *cacheUSARTInstance(USART_DMA *USARTDmaInstance);
+static Vector USART_DMAInstanceCache = NULL;
+
 static void interruptCallbackHandler(USART_DMA *USARTDmaPointer);
 static void clearInterruptFlag(USART_DMA *USARTDmaPointer);
 
@@ -61,11 +62,13 @@ USART_DMA *initUSART_DMA(USART_TypeDef *USARTx, DMA_TypeDef *DMAx, uint32_t rxSt
         USARTDmaInstance->txData->isTransferComplete = false;
     }
 
+    initSingletonVector(&USART_DMAInstanceCache, INITIAL_NUMBER_OF_USART_DMA_INSTANCES);
+    vectorAdd(USART_DMAInstanceCache, USARTDmaInstance);
     LL_USART_EnableIT_RXNE(USARTx);
     LL_USART_EnableIT_ERROR(USARTx);
     LL_USART_EnableIT_IDLE(USARTx);
 
-    return cacheUSARTInstance(USARTDmaInstance);
+    return USARTDmaInstance;
 }
 
 USART_DMA *initUSART_DMA_RX(USART_TypeDef *USARTx, DMA_TypeDef *DMAx, uint32_t rxStream, uint32_t rxBufferSize) {
@@ -77,8 +80,8 @@ USART_DMA *initUSART_DMA_TX(USART_TypeDef *USARTx, DMA_TypeDef *DMAx, uint32_t t
 }
 
 void transferCompleteCallbackUSART_DMA(DMA_TypeDef *DMAx, uint32_t stream) {
-    for (uint8_t i = 0; i < NUMBER_OF_USART_DMA_INSTANCES; i++) {
-        USART_DMA *USARTDmaPointer = USART_DMAInstanceArray[i];
+    for (uint32_t i = 0; i < getVectorSize(USART_DMAInstanceCache); i++) {
+        USART_DMA *USARTDmaPointer = vectorGet(USART_DMAInstanceCache, i);
         if (USARTDmaPointer->DMAx == DMAx && USARTDmaPointer->rxData != NULL && USARTDmaPointer->rxData->stream == stream) {
             if (isTransferCompleteInterruptEnabledDMA(USARTDmaPointer->DMAx, stream)) {
                 disableTransferCompleteInterruptDMA(DMAx, stream);
@@ -98,9 +101,10 @@ void transferCompleteCallbackUSART_DMA(DMA_TypeDef *DMAx, uint32_t stream) {
 }
 
 void interruptCallbackUSART(USART_TypeDef *USARTx) {
-    for (uint8_t i = 0; i < NUMBER_OF_USART_DMA_INSTANCES; i++) {
-        if (USART_DMAInstanceArray[i] != NULL && USART_DMAInstanceArray[i]->USARTx == USARTx) {
-            interruptCallbackHandler(USART_DMAInstanceArray[i]);
+    for (uint32_t i = 0; i < getVectorSize(USART_DMAInstanceCache); i++) {
+        USART_DMA *USARTDmaPointer = vectorGet(USART_DMAInstanceCache, i);
+        if (USARTDmaPointer != NULL && USARTDmaPointer->USARTx == USARTx) {
+            interruptCallbackHandler(USARTDmaPointer);
             break;
         }
     }
@@ -163,16 +167,6 @@ void deleteUSART_DMA(USART_DMA *USARTDmaPointer) {
         }
         free(USARTDmaPointer);
     }
-}
-
-static USART_DMA *cacheUSARTInstance(USART_DMA *USARTDmaInstance) {
-    for (uint8_t i = 0; i < NUMBER_OF_USART_DMA_INSTANCES; i++) {
-        if (USART_DMAInstanceArray[i] == NULL) {
-            USART_DMAInstanceArray[i] = USARTDmaInstance;
-            return USART_DMAInstanceArray[i];
-        }
-    }
-    return NULL;
 }
 
 static void interruptCallbackHandler(USART_DMA *USARTDmaPointer) {
