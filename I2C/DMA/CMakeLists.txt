@@ -10,6 +10,11 @@ CPMAddPackage(
         GITHUB_REPOSITORY ximtech/DWTDelay
         GIT_TAG origin/main)
 
+CPMAddPackage(
+        NAME Vector
+        GITHUB_REPOSITORY ximtech/Vector
+        GIT_TAG origin/main)
+
 set(DMA_UTILS_DIR ${STM32_CORE_SOURCE_DIR}/DMA)
 
 set(I2C_DMA_DIRECTORY
@@ -39,6 +44,7 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 target_link_libraries(${PROJECT_NAME} DWT_Delay)
+target_link_libraries(${PROJECT_NAME} Vector)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
