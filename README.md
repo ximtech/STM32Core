@@ -55,6 +55,14 @@ into digital data, a value that represents the voltage level in binary code.
 
 ```cmake
 # add in CmakeLists_template.txt or directly to CmakeLists.txt
+# link libraries to project
+# Polling ADC
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/ADC/Polling)
+# Interrupt based ADC
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/ADC/IT)
+# DMA based ADC
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/ADC/DMA)
+
 include_directories(${includes}
         ${ADC_POLLING_DIRECTORY}
         ${ADC_IT_DIRECTORY}
@@ -64,22 +72,9 @@ file(GLOB_RECURSE SOURCES ${sources}
         ${ADC_POLLING_SOURCES}
         ${ADC_IT_SOURCES}
         ${ADC_DMA_SOURCES})
-
-# link libraries to project
-# Polling ADC
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/ADC/Polling)
-target_link_libraries(${PROJECT_NAME}.elf ADC_Polling)
-
-# Interrupt based ADC
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/ADC/IT)
-target_link_libraries(${PROJECT_NAME}.elf ADC_IT)
-
-# DMA based ADC
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/ADC/DMA)
-target_link_libraries(${PROJECT_NAME}.elf ADC_DMA)
 ```
 
-3. Then Build -> Rebuild Project
+3. Then Build -> Clean -> Rebuild Project
 
 ## Usage
 
@@ -139,6 +134,11 @@ It is a relatively slow protocol but has seen widespread use due to its simplici
 4. Add sources to project:
 ```cmake
 # add in CmakeLists_template.txt or directly to CmakeLists.txt
+# link libraries
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/I2C/Polling)
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/I2C/IT)
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/I2C/DMA)
+
 include_directories(${includes}
         ${I2C_POLLING_DIRECTORY}
         ${I2C_IT_DIRECTORY}
@@ -148,19 +148,9 @@ file(GLOB_RECURSE SOURCES ${sources}
         ${I2C_POLLING_SOURCES}
         ${I2C_IT_SOURCES}
         ${I2C_DMA_SOURCES})
-
-# link libraries
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/I2C/Polling)
-target_link_libraries(${PROJECT_NAME}.elf I2C_Polling)
-
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/I2C/IT)
-target_link_libraries(${PROJECT_NAME}.elf I2C_IT)
-
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/I2C/DMA)
-target_link_libraries(${PROJECT_NAME}.elf I2C_DMA)
 ```
 
-3. Then Build -> Rebuild Project
+3. Then Build -> Clean -> Rebuild Project
 
 ## Usage
 1. Polling I2C code examples:
@@ -188,6 +178,11 @@ The USART peripheral is used to interconnect STM32 MPU devices with other system
 4. Add sources to project: 
 ```cmake
 # add in CmakeLists_template.txt or directly to CmakeLists.txt
+# link libraries
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/USART/DMA)
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/USART/IT)
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/USART/Polling)
+
 include_directories(${includes}
         ${USART_POLLING_DIRECTORY}
         ${USART_IT_DIRECTORY}
@@ -197,19 +192,9 @@ file(GLOB_RECURSE SOURCES ${sources}
         ${USART_POLLING_SOURCES}
         ${USART_IT_SOURCES}
         ${USART_DMA_SOURCES})
-
-# link libraries
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/USART/DMA)
-target_link_libraries(${PROJECT_NAME}.elf USART_DMA)
-
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/USART/IT)
-target_link_libraries(${PROJECT_NAME}.elf USART_IT)
-
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/USART/Polling)
-target_link_libraries(${PROJECT_NAME}.elf USART_Polling)
 ```
 
-3. Then Build -> Rebuild Project
+3. Then Build -> Clean -> Rebuild Project
 
 ## Usage
 1. Polling USART code example:
@@ -243,6 +228,11 @@ used for serial communication between microcomputer systems and other devices, m
 4. Add sources to project: 
 ```cmake
 # add in CmakeLists_template.txt or directly to CmakeLists.txt
+# link libraries
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/SPI/Polling)
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/SPI/IT)
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/SPI/DMA)
+
 include_directories(${includes}
         ${SPI_POLLING_DIRECTORY}
         ${SPI_IT_DIRECTORY}
@@ -252,19 +242,9 @@ file(GLOB_RECURSE SOURCES ${sources}
         ${SPI_POLLING_SOURCES}
         ${SPI_IT_SOURCES}
         ${SPI_DMA_SOURCES})
-
-# link libraries
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/SPI/Polling)
-target_link_libraries(${PROJECT_NAME}.elf SPI_Polling)
-
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/SPI/IT)
-target_link_libraries(${PROJECT_NAME}.elf SPI_IT)
-
-add_subdirectory(${STM32_CORE_SOURCE_DIR}/SPI/DMA)
-target_link_libraries(${PROJECT_NAME}.elf SPI_DMA)
 ```
 
-3. Then Build -> Rebuild Project
+3. Then Build -> Clean -> Rebuild Project
 
 ## Usage
 1. Polling SPI code example:
