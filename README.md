@@ -214,14 +214,14 @@ used for serial communication between microcomputer systems and other devices, m
 
 1. Start project with STM32CubeMX:
    * Configuration for Polling SPI:
-     * [Base config]()
+     * [Base config](https://github.com/ximtech/STM32Core/blob/main/SPI/IT/config/config_1.PNG)
    * Configuration for Interrupt SPI:
-      * [Base config]()
-      * [NVIC settings]()
+      * [Base config](https://github.com/ximtech/STM32Core/blob/main/SPI/IT/config/config_1.PNG)
+      * [NVIC settings](https://github.com/ximtech/STM32Core/blob/main/SPI/IT/config/config_2.PNG)
    * Configuration for DMA SPI:
-      * [Base config]()
-      * [NVIC settings]()
-      * [DMA config]()
+      * [Base config](https://github.com/ximtech/STM32Core/blob/main/SPI/DMA/config/config_2.PNG)
+      * [NVIC settings](https://github.com/ximtech/STM32Core/blob/main/SPI/DMA/config/config_3.PNG)
+      * [DMA config](https://github.com/ximtech/STM32Core/blob/main/SPI/DMA/config/config_1.PNG)
 
 2. Select: Project Manager -> Advanced Settings -> SPI -> LL
 3. Generate Code
@@ -248,9 +248,9 @@ file(GLOB_RECURSE SOURCES ${sources}
 
 ## Usage
 1. Polling SPI code example:
-   * **TODO: add examples**
+   * [Nokia LCD SPI Polling](https://github.com/ximtech/Nokia5110_LCD/blob/main/Nokia5110_LCD.c)
 2. Interrupt SPI code example:
-   * **TODO: add examples**
+   * [Nokia LCD SPI IT](https://github.com/ximtech/Nokia5110_LCD/blob/main/Nokia5110_LCD_IT.c)
 3. DMA SPI code example:
    * [Init example](https://github.com/ximtech/STM32Core/blob/main/SPI/DMA/config/initialization_example.PNG)
    * [Interrupt callback](https://github.com/ximtech/STM32Core/blob/main/SPI/DMA/config/interrupts_example.PNG)

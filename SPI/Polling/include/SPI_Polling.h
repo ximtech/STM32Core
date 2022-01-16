@@ -2,6 +2,11 @@
 
 #include <stdbool.h>
 #include "main.h"
+#include "DWT_Delay.h"
+
+#ifndef POLLING_SPI_TIMEOUT_MS
+#define POLLING_SPI_TIMEOUT_MS 1000
+#endif
 
 typedef struct SPI_Polling {
     SPI_TypeDef *SPIx;

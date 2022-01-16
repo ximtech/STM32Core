@@ -1,10 +1,14 @@
 #include "SPI_Polling.h"
 
+static void waitWhileTxWillBeReady(SPI_Polling *spi);
+static void waitWhileRxWillBeReady(SPI_Polling *spi);
+
 SPI_Polling initSPI(SPI_TypeDef *SPIx, GPIO_TypeDef *chipSelectPort, uint32_t chipSelectPin) {
     SPI_Polling spiInstance = {0};
     spiInstance.SPIx = SPIx;
     spiInstance.chipSelectPort = chipSelectPort;
     spiInstance.chipSelectPin = chipSelectPin;
+    dwtDelayInit();
     return spiInstance;
 }
 
@@ -21,9 +25,9 @@ void transmit8BitsSPI(SPI_Polling *spi, uint8_t byte) {
 }
 
 uint8_t receive8BitsSPI(SPI_Polling *spi) {
-    while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));    // wait for TXE (Transmit buffer empty)
+    waitWhileTxWillBeReady(spi);    // wait for TXE (Transmit buffer empty)
     LL_SPI_TransmitData8(spi->SPIx, 0xFF);  // the clock is controlled by master. Thus, the master should send a byte, 0xFF - a dummy byte
-    while (!LL_SPI_IsActiveFlag_RXNE(spi->SPIx));   // data to the slave to start the clock
+    waitWhileRxWillBeReady(spi);   // data to the slave to start the clock
     return LL_SPI_ReceiveData8(spi->SPIx);
 }
 
@@ -32,26 +36,26 @@ void transmit16BitsSPI(SPI_Polling *spi, uint16_t halfWord) {
 }
 
 uint16_t receive16BitsSPI(SPI_Polling *spi) {
-    while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
+    waitWhileTxWillBeReady(spi);
     LL_SPI_TransmitData16(spi->SPIx, 0xFFFF);
-    while (!LL_SPI_IsActiveFlag_RXNE(spi->SPIx));
+    waitWhileRxWillBeReady(spi);
     return LL_SPI_ReceiveData16(spi->SPIx);
 }
 
 uint8_t transmitReceive8BitsSPI(SPI_Polling *spi, uint8_t byte) {
     if (!LL_SPI_IsEnabled(spi->SPIx)) LL_SPI_Enable(spi->SPIx);
-    while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
+    waitWhileTxWillBeReady(spi);
     LL_SPI_TransmitData8(spi->SPIx, byte);
-    while (!LL_SPI_IsActiveFlag_RXNE(spi->SPIx));
+    waitWhileRxWillBeReady(spi);
     LL_SPI_Disable(spi->SPIx);
     return LL_SPI_ReceiveData8(spi->SPIx);
 }
 
 uint16_t transmitReceive16BitsSPI(SPI_Polling *spi, uint16_t halfWord) {
     if (!LL_SPI_IsEnabled(spi->SPIx)) LL_SPI_Enable(spi->SPIx);
-    while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
+    waitWhileTxWillBeReady(spi);
     LL_SPI_TransmitData16(spi->SPIx, halfWord);
-    while (!LL_SPI_IsActiveFlag_RXNE(spi->SPIx));
+    waitWhileRxWillBeReady(spi);
     LL_SPI_Disable(spi->SPIx);
     return LL_SPI_ReceiveData16(spi->SPIx);
 }
@@ -82,4 +86,16 @@ void receive16bitDataSPI(SPI_Polling *spi, uint16_t *rxData, uint16_t length) {
         rxData[i] = receive16BitsSPI(spi);
     }
     while (LL_SPI_IsActiveFlag_BSY(spi->SPIx));
+}
+
+static void waitWhileTxWillBeReady(SPI_Polling *spi) {
+    uint32_t startMillis = currentMilliSeconds();
+    while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx) &&
+           (currentMilliSeconds() - startMillis) > POLLING_SPI_TIMEOUT_MS);
+}
+
+static void waitWhileRxWillBeReady(SPI_Polling *spi) {
+    uint32_t startMillis = currentMilliSeconds();
+    while (!LL_SPI_IsActiveFlag_RXNE(spi->SPIx) &&
+           (currentMilliSeconds() - startMillis) > POLLING_SPI_TIMEOUT_MS);
 }
