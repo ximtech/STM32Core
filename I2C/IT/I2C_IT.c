@@ -84,7 +84,7 @@ uint8_t receiveByteAsMasterWithNackI2C_IT(I2C_IT *I2CPointer) {
 
 void transmitDataAsMasterI2C_IT(I2C_IT *I2CPointer, uint32_t address, uint8_t *txData, uint16_t size) {
     while (!LL_I2C_IsActiveFlag_TXE(I2CPointer->I2Cx));
-    for (int i = 0; i < size; i++) {
+    for (uint16_t i = 0; i < size; i++) {
         if (isRingBufferNotFull(I2CPointer->TxBuffer)) {
             ringBufferAdd(I2CPointer->TxBuffer, txData[i]);
         } else {

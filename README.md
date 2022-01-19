@@ -148,6 +148,10 @@ file(GLOB_RECURSE SOURCES ${sources}
         ${I2C_POLLING_SOURCES}
         ${I2C_IT_SOURCES}
         ${I2C_DMA_SOURCES})
+
+add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT}) # executable declaration should be before libraries
+
+target_link_libraries(${PROJECT_NAME}.elf RingBuffer)   # add ring buffer if I2C_IT is used
 ```
 
 3. Then Build -> Clean -> Rebuild Project

@@ -165,7 +165,6 @@ static I2CStatus sendSlaveAddress(I2C_Polling *i2c, uint32_t address, I2CDataDir
 
     if (!loopWhileCheckFunctionStatus(i2c, LL_I2C_IsActiveFlag_ADDR, RESET)) {// Wait until ADDR flag is set
         LL_I2C_ClearFlag_AF(i2c->I2Cx);
-        stopAsMasterI2C(i2c);
         return I2C_ACK_ERROR;
     }
     LL_I2C_ClearFlag_ADDR(i2c->I2Cx);
