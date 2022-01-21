@@ -2,6 +2,7 @@
 
 #include "I2CBase.h"
 #include "RingBuffer.h"
+#include "DWT_Delay.h"
 
 #define NUMBER_OF_I2C_INSTANCES 3
 
@@ -28,7 +29,7 @@ void transmitByteAsMasterI2C_IT(I2C_IT *I2CPointer, uint8_t byte);         // ca
 uint8_t receiveByteAsMasterI2C_IT(I2C_IT *I2CPointer);                    // call: startMasterI2C() -> rx, ... -> stopMasterI2C()
 uint8_t receiveByteAsMasterWithNackI2C_IT(I2C_IT *I2CPointer);
 
-void transmitDataAsMasterI2C_IT(I2C_IT *I2CPointer, uint32_t address, uint8_t *txData, uint16_t size);
+void transmitDataAsMasterI2C_IT(I2C_IT *I2CPointer, uint8_t *txData, uint16_t size);
 void receiveDataAsMasterI2C_IT(I2C_IT *I2CPointer, uint32_t address, uint8_t *data, uint16_t size);
 
 bool isRxBufferEmptyI2C_IT(I2C_IT *I2CPointer);

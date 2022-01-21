@@ -72,6 +72,8 @@ file(GLOB_RECURSE SOURCES ${sources}
         ${ADC_POLLING_SOURCES}
         ${ADC_IT_SOURCES}
         ${ADC_DMA_SOURCES})
+
+target_link_libraries(${PROJECT_NAME}.elf Vector)   # add vector if ADC_IT or ADC_DMA is used
 ```
 
 3. Then Build -> Clean -> Rebuild Project
@@ -152,6 +154,7 @@ file(GLOB_RECURSE SOURCES ${sources}
 add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT}) # executable declaration should be before libraries
 
 target_link_libraries(${PROJECT_NAME}.elf RingBuffer)   # add ring buffer if I2C_IT is used
+target_link_libraries(${PROJECT_NAME}.elf Vector)   # add vector if I2C_DMA is used
 ```
 
 3. Then Build -> Clean -> Rebuild Project
@@ -196,6 +199,9 @@ file(GLOB_RECURSE SOURCES ${sources}
         ${USART_POLLING_SOURCES}
         ${USART_IT_SOURCES}
         ${USART_DMA_SOURCES})
+
+target_link_libraries(${PROJECT_NAME}.elf RingBuffer)   # add ring buffer if USART_IT is used
+target_link_libraries(${PROJECT_NAME}.elf Vector)   # add vector if USART_DMA is used
 ```
 
 3. Then Build -> Clean -> Rebuild Project
@@ -246,6 +252,9 @@ file(GLOB_RECURSE SOURCES ${sources}
         ${SPI_POLLING_SOURCES}
         ${SPI_IT_SOURCES}
         ${SPI_DMA_SOURCES})
+
+target_link_libraries(${PROJECT_NAME}.elf RingBuffer)   # add ring buffer if SPI_IT is used
+target_link_libraries(${PROJECT_NAME}.elf Vector)   # add vector if SPI_DMA is used
 ```
 
 3. Then Build -> Clean -> Rebuild Project

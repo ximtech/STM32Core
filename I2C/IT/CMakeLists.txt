@@ -10,6 +10,11 @@ CPMAddPackage(
         GITHUB_REPOSITORY ximtech/RingBuffer
         GIT_TAG origin/main)
 
+CPMAddPackage(
+        NAME DWTDelay
+        GITHUB_REPOSITORY ximtech/DWTDelay
+        GIT_TAG origin/main)
+
 set(I2C_IT_DIRECTORY
         ${DWT_DELAY_DIRECTORY}
         ${I2C_IT_SOURCE_DIR}

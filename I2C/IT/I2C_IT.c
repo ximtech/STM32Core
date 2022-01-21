@@ -11,6 +11,7 @@ static void interruptCallbackHandler(I2C_IT *I2CPointer);
 static void sendSlaveAddress(I2C_IT *I2CPointer);
 static void rxInterruptCallbackI2C(I2C_IT *I2CPointer);
 static void txInterruptCallbackI2C(I2C_IT *I2CPointer);
+static bool loopWhileCheckFunctionStatus(I2C_IT *I2CPointer, uint32_t (*checkFunctionPointer)(I2C_TypeDef *), FlagStatus status);
 
 
 I2C_IT *initBufferedI2C_IT(I2C_TypeDef *I2Cx, I2CAddressingMode addressingMode, uint32_t rxBufferSize, uint32_t txBufferSize, uint32_t timeout) {
@@ -26,24 +27,39 @@ I2C_IT *initBufferedI2C_IT(I2C_TypeDef *I2Cx, I2CAddressingMode addressingMode, 
 }
 
 void startMasterI2C_IT(I2C_IT *I2CPointer, uint32_t address, I2CDataDirection direction) {
+    if (loopWhileCheckFunctionStatus(I2CPointer, LL_I2C_IsActiveFlag_BUSY, SET)) {
+        I2CPointer->status = I2C_LINE_BUSY_ERROR;
+        return;
+    }
     I2CPointer->address = address;
     I2CPointer->direction = direction;
 
     LL_I2C_EnableIT_EVT(I2CPointer->I2Cx);
     LL_I2C_EnableIT_ERR(I2CPointer->I2Cx);
     LL_I2C_EnableIT_RX(I2CPointer->I2Cx);
+    LL_I2C_EnableIT_BUF(I2CPointer->I2Cx);
 
     LL_I2C_DisableBitPOS(I2CPointer->I2Cx);
     LL_I2C_AcknowledgeNextData(I2CPointer->I2Cx, LL_I2C_ACK);   // enable address acknowledge
     LL_I2C_GenerateStartCondition(I2CPointer->I2Cx);
+
+    if (loopWhileCheckFunctionStatus(I2CPointer, LL_I2C_IsActiveFlag_ADDR, RESET)) {
+        I2CPointer->status = I2C_ACK_ERROR;
+        return;
+    }
+    LL_I2C_ClearFlag_ADDR(I2CPointer->I2Cx);
 }
 
 void stopMasterI2C_IT(I2C_IT *I2CPointer) {
-    LL_I2C_GenerateStopCondition(I2CPointer->I2Cx);
+    if (loopWhileCheckFunctionStatus(I2CPointer, LL_I2C_IsActiveFlag_BTF, RESET)) { // busy to tx data
+        I2CPointer->status = I2C_LINE_BUSY_ERROR;
+        return;
+    }
     LL_I2C_DisableIT_EVT(I2CPointer->I2Cx);
     LL_I2C_DisableIT_BUF(I2CPointer->I2Cx);
     LL_I2C_DisableIT_ERR(I2CPointer->I2Cx);
     LL_I2C_DisableIT_RX(I2CPointer->I2Cx);
+    LL_I2C_GenerateStopCondition(I2CPointer->I2Cx);
 }
 
 void interruptEventCallbackI2C1() {
@@ -72,17 +88,23 @@ uint8_t receiveByteAsMasterI2C_IT(I2C_IT *I2CPointer) {
 }
 
 uint8_t receiveByteAsMasterWithNackI2C_IT(I2C_IT *I2CPointer) {
+    if (loopWhileCheckFunctionStatus(I2CPointer, LL_I2C_IsActiveFlag_BTF, RESET)) { // busy to tx data
+        I2CPointer->status = I2C_LINE_BUSY_ERROR;
+    }
     LL_I2C_AcknowledgeNextData(I2CPointer->I2Cx, LL_I2C_NACK);
     LL_I2C_GenerateStopCondition(I2CPointer->I2Cx);
 
+    if (loopWhileCheckFunctionStatus(I2CPointer, LL_I2C_IsActiveFlag_RXNE, RESET)) { // wait for data rx
+        I2CPointer->status = I2C_DATA_RX_ERROR;
+    }
     LL_I2C_DisableIT_EVT(I2CPointer->I2Cx);
     LL_I2C_DisableIT_BUF(I2CPointer->I2Cx);
     LL_I2C_DisableIT_ERR(I2CPointer->I2Cx);
     LL_I2C_DisableIT_RX(I2CPointer->I2Cx);
-    return LL_I2C_ReceiveData8(I2CPointer->I2Cx);
+    return I2CPointer->status == I2C_OK ? receiveByteAsMasterI2C_IT(I2CPointer) : 0xFF;
 }
 
-void transmitDataAsMasterI2C_IT(I2C_IT *I2CPointer, uint32_t address, uint8_t *txData, uint16_t size) {
+void transmitDataAsMasterI2C_IT(I2C_IT *I2CPointer, uint8_t *txData, uint16_t size) {
     while (!LL_I2C_IsActiveFlag_TXE(I2CPointer->I2Cx));
     for (uint16_t i = 0; i < size; i++) {
         if (isRingBufferNotFull(I2CPointer->TxBuffer)) {
@@ -93,7 +115,6 @@ void transmitDataAsMasterI2C_IT(I2C_IT *I2CPointer, uint32_t address, uint8_t *t
             ringBufferAdd(I2CPointer->TxBuffer, txData[i]);
         }
     }
-    startMasterI2C_IT(I2CPointer, address, I2C_WRITE_TO_SLAVE);
     LL_I2C_EnableIT_TX(I2CPointer->I2Cx);
 }
 
@@ -192,8 +213,22 @@ static void rxInterruptCallbackI2C(I2C_IT *I2CPointer) {
 
 static void txInterruptCallbackI2C(I2C_IT *I2CPointer) {
     if (isRingBufferNotEmpty(I2CPointer->TxBuffer)) {
-        LL_I2C_TransmitData8(I2CPointer->I2Cx, ringBufferGet(I2CPointer->TxBuffer));
+        uint8_t byte = ringBufferGet(I2CPointer->TxBuffer);
+        LL_I2C_TransmitData8(I2CPointer->I2Cx, byte);
+        if (isRingBufferEmpty(I2CPointer->TxBuffer)) {  // no next data in buffer, disable interrupt
+            LL_I2C_DisableIT_TX(I2CPointer->I2Cx);
+        }
     } else {
         LL_I2C_DisableIT_TX(I2CPointer->I2Cx);// tx buffer empty, disable interrupt
     }
+}
+
+static bool loopWhileCheckFunctionStatus(I2C_IT *I2CPointer, uint32_t (*checkFunctionPointer)(I2C_TypeDef *), FlagStatus status) {
+    uint32_t startTime = currentMilliSeconds();
+    while (checkFunctionPointer(I2CPointer->I2Cx) == status) {
+        if ((currentMilliSeconds() - startTime) >= I2CPointer->timeout) {
+            return false;
+        }
+    }
+    return true;
 }
