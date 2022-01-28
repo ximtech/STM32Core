@@ -25,6 +25,7 @@ ADC_IT *initRegularADC_IT(ADC_TypeDef *ADCx) {
     ADCPointer->type = ADC_REGULAR_CHANNEL;
     ADCPointer->status = ADC_OK;
     ADCPointer->value = 0;
+    ADCPointer->rank = 0;
 
 	initSingletonVector(&ADCInstanceCache, INITIAL_NUMBER_OF_ADC_IT_INSTANCES);
     vectorAdd(ADCInstanceCache, ADCPointer);
@@ -134,6 +135,7 @@ void deleteADC_IT() {
         free(vectorGet(ADCInstanceCache, i));
     }
     vectorDelete(ADCInstanceCache);
+    ADCInstanceCache = NULL;
 }
 
 static void startRegularChannelConversion(ADC_TypeDef *ADCx) {
