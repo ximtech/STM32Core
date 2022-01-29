@@ -18,14 +18,15 @@ static void setRegularChannelADCValue(ADC_IT *ADCPointer);
 void setInjectedChannelADCValue(ADC_IT *ADCPointer, uint32_t rank);
 
 
-ADC_IT *initRegularADC_IT(ADC_TypeDef *ADCx) {
+ADC_IT *initRegularADC_IT(ADC_TypeDef *ADCx, uint32_t rank, uint32_t channel) {
     ADC_IT *ADCPointer = malloc(sizeof(ADC_IT));
     if (ADCPointer == NULL) return NULL;
     ADCPointer->ADCx = ADCx;
     ADCPointer->type = ADC_REGULAR_CHANNEL;
     ADCPointer->status = ADC_OK;
+    ADCPointer->channel = __LL_ADC_CHANNEL_TO_DECIMAL_NB(channel);
+    ADCPointer->rank = rank;
     ADCPointer->value = 0;
-    ADCPointer->rank = 0;
 
 	initSingletonVector(&ADCInstanceCache, INITIAL_NUMBER_OF_ADC_IT_INSTANCES);
     vectorAdd(ADCInstanceCache, ADCPointer);
@@ -34,10 +35,9 @@ ADC_IT *initRegularADC_IT(ADC_TypeDef *ADCx) {
 
 ADC_IT *initInjectedADC_IT(ADC_TypeDef *ADCx, uint32_t rank) {
     if (rank < 1) return NULL;
-    ADC_IT *ADCPointer = initRegularADC_IT(ADCx);
+    ADC_IT *ADCPointer = initRegularADC_IT(ADCx, rank, 0);
     if (ADCPointer == NULL) return NULL;
     ADCPointer->type = ADC_INJECTED_CHANNEL;
-    ADCPointer->rank = rank;
     return ADCPointer;
 }
 
@@ -61,6 +61,15 @@ ADCStatus startADC_IT(ADC_TypeDef *ADCx, ADCChannelType channelType) {
     return ADC_OK;
 }
 
+void selectChannelADC_IT(ADC_IT *ADCPointer) {
+    if (ADCPointer->type == ADC_REGULAR_CHANNEL) {
+        LL_ADC_REG_SetSequencerRanks(ADCPointer->ADCx, ADCPointer->rank, ADCPointer->channel);
+    } else {
+        LL_ADC_INJ_SetSequencerRanks(ADCPointer->ADCx, ADCPointer->rank, ADCPointer->channel);
+    }
+    LL_ADC_SetChannelSamplingTime(ADCPointer->ADCx, ADCPointer->channel, LL_ADC_GetChannelSamplingTime(ADCPointer->ADCx, ADCPointer->channel));
+}
+
 void stopADC_IT(ADC_TypeDef *ADCx) {
     LL_ADC_DisableIT_EOCS(ADCx);
     LL_ADC_DisableIT_JEOS(ADCx);
@@ -79,16 +88,20 @@ void conventionCompleteCallbackADC(ADC_TypeDef *ADCx, ADCChannelType channelType
 static void interruptHandlerForRegularChannelADC(ADC_TypeDef *ADCx) {
     for (uint32_t i = 0; i < getVectorSize(ADCInstanceCache); i++) {
         ADC_IT *ADCPointer = vectorGet(ADCInstanceCache, i);
+
         if (ADCPointer != NULL && ADCPointer->ADCx == ADCx && ADCPointer->type == ADC_REGULAR_CHANNEL) {
-            if (LL_ADC_IsActiveFlag_EOCS(ADCPointer->ADCx)) {
-                LL_ADC_ClearFlag_EOCS(ADCPointer->ADCx);
-                setRegularChannelADCValue(ADCPointer);
-                ADCPointer->status = ADC_OK;
-            } else if (LL_ADC_IsActiveFlag_OVR(ADCPointer->ADCx)) {
-                LL_ADC_ClearFlag_OVR(ADCPointer->ADCx);
-                ADCPointer->status = ADC_OVERRUN_ERROR;
+            uint32_t channel = LL_ADC_REG_GetSequencerRanks(ADCPointer->ADCx, ADCPointer->rank);
+            if (ADCPointer->channel == channel) {
+                if (LL_ADC_IsActiveFlag_EOCS(ADCPointer->ADCx)) {
+                    LL_ADC_ClearFlag_EOCS(ADCPointer->ADCx);
+                    setRegularChannelADCValue(ADCPointer);
+                    ADCPointer->status = ADC_OK;
+                } else if (LL_ADC_IsActiveFlag_OVR(ADCPointer->ADCx)) {
+                    LL_ADC_ClearFlag_OVR(ADCPointer->ADCx);
+                    ADCPointer->status = ADC_OVERRUN_ERROR;
+                }
+                break;
             }
-            break;
         }
     }
 }

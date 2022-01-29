@@ -83,7 +83,8 @@ int main(void) {
     printAtPositionLCD(0, 2, "ADC Interrupt");
     printAtPositionLCD(1, 2, "Timer Ext Trigger");
 
-    ADC_IT *adc = initRegularADC_IT(ADC1);
+    ADC_IT *adc = initRegularADC_IT(ADC1, LL_ADC_REG_RANK_1, LL_ADC_CHANNEL_1);
+    selectChannelADC_IT(adc);
     startADC_IT(adc, ADC_REGULAR_CHANNEL);
 
     LL_TIM_EnableCounter(TIM3);	// start timer when timer trigger enabled
