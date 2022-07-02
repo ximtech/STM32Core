@@ -7,11 +7,10 @@ include(../../cmake/CPM.cmake)
 
 set(RTC_DIRECTORY
         ${STM32_CORE_SOURCE_DIR}/RTC
-        ${RTC_SOURCE_DIR}
-        ${RTC_SOURCE_DIR}/include
+        ${STM32_CORE_SOURCE_DIR}/RTC/include
         CACHE STRING "RTC directories include to the main project" FORCE)
 
 set(RTC_SOURCES
-        ${RTC_SOURCE_DIR}/${PROJECT_NAME}.c
-        ${RTC_SOURCE_DIR}/include/${PROJECT_NAME}.h
+        ${STM32_CORE_SOURCE_DIR}/RTC/${PROJECT_NAME}.c
+        ${STM32_CORE_SOURCE_DIR}/RTC/include/${PROJECT_NAME}.h
         CACHE STRING "RTC source files include to the main project" FORCE)
