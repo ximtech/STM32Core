@@ -3,7 +3,7 @@ project(RTC VERSION 1.0 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 99)
 
-include(../../cmake/CPM.cmake)
+include(../cmake/CPM.cmake)
 
 set(RTC_DIRECTORY
         ${STM32_CORE_SOURCE_DIR}/RTC
