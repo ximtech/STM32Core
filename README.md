@@ -296,7 +296,7 @@ CPMAddPackage(
 
 add_subdirectory(${STM32_CORE_SOURCE_DIR}/RTC)
 include_directories(${includes} ${RTC_DIRECTORY})
-file(GLOB_RECURSE SOURCES ${sources} ${RTC_SOURCES}})
+file(GLOB_RECURSE SOURCES ${sources} ${RTC_SOURCES})
 
 target_link_libraries(${PROJECT_NAME}.elf GlobalDateTime)   # library requires date-time library
 ```
