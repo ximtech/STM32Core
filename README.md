@@ -267,3 +267,45 @@ target_link_libraries(${PROJECT_NAME}.elf Vector)   # add vector if SPI_DMA is u
 3. DMA SPI code example:
    * [Init example](https://github.com/ximtech/STM32Core/blob/main/SPI/DMA/config/initialization_example.PNG)
    * [Interrupt callback](https://github.com/ximtech/STM32Core/blob/main/SPI/DMA/config/interrupts_example.PNG)
+
+
+# RTC
+A real-time clock (RTC) is a computer clock that keeps track of the current time.
+
+### Project configuration
+
+1. Start project with STM32CubeMX:
+    * Configuration for Polling SPI:
+        * [RTC config 1](https://github.com/ximtech/STM32Core/blob/main/RTC/config/config_1.PNG)
+        * [RTC config 2](https://github.com/ximtech/STM32Core/blob/main/RTC/config/config_2.PNG)
+        * [NVIC settings](https://github.com/ximtech/STM32Core/blob/main/RTC/config/config_3.PNG)
+
+2. Select: Project Manager -> Advanced Settings -> RTC -> LL
+3. Generate Code
+4. Add sources to project:
+```cmake
+# add in CmakeLists_template.txt or directly to CmakeLists.txt
+# link libraries
+CPMAddPackage(
+        NAME GlobalDateTime
+        GITHUB_REPOSITORY ximtech/GlobalDateTime
+        GIT_TAG origin/main
+        OPTIONS
+        "ENABLE_TIME_ZONE_SUPPORT ON"
+        "ENABLE_TIME_ZONE_HISTORIC_RULES OFF")
+
+add_subdirectory(${STM32_CORE_SOURCE_DIR}/RTC)
+include_directories(${includes} ${RTC_DIRECTORY})
+file(GLOB_RECURSE SOURCES ${sources} ${RTC_SOURCES}})
+
+target_link_libraries(${PROJECT_NAME}.elf GlobalDateTime)   # library requires date-time library
+```
+
+3. Then Build -> Clean -> Rebuild Project
+
+## Usage
+
+1. RTC code example:
+    * [Main](https://github.com/ximtech/STM32Core/blob/main/RTC/example/main.c)
+2. Interrupt SPI code example:
+    * [Alarm IT](https://github.com/ximtech/STM32Core/blob/main/USART/example/stm32f4xx_it.c)
