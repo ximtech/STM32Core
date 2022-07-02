@@ -276,9 +276,9 @@ A real-time clock (RTC) is a computer clock that keeps track of the current time
 
 1. Start project with STM32CubeMX:
     * Configuration for Polling SPI:
-        * [RTC config 1](https://github.com/ximtech/STM32Core/blob/main/RTC/config/config_1.PNG)
-        * [RTC config 2](https://github.com/ximtech/STM32Core/blob/main/RTC/config/config_2.PNG)
-        * [NVIC settings](https://github.com/ximtech/STM32Core/blob/main/RTC/config/config_3.PNG)
+        * [RTC config 1](https://github.com/ximtech/STM32Core/blob/main/RTC/config/config_1.png)
+        * [RTC config 2](https://github.com/ximtech/STM32Core/blob/main/RTC/config/config_2.png)
+        * [NVIC settings](https://github.com/ximtech/STM32Core/blob/main/RTC/config/config_3.png)
 
 2. Select: Project Manager -> Advanced Settings -> RTC -> LL
 3. Generate Code
@@ -308,4 +308,4 @@ target_link_libraries(${PROJECT_NAME}.elf GlobalDateTime)   # library requires d
 1. RTC code example:
     * [Main](https://github.com/ximtech/STM32Core/blob/main/RTC/example/main.c)
 2. Interrupt SPI code example:
-    * [Alarm IT](https://github.com/ximtech/STM32Core/blob/main/USART/example/stm32f4xx_it.c)
+    * [Alarm IT](https://github.com/ximtech/STM32Core/blob/main/RTC/example/stm32f4xx_it.c)
