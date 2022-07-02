@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(RTC VERSION 1.0 LANGUAGES C)
+project(RTC_LL VERSION 1.0 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 99)
 

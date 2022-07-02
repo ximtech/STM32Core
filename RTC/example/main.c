@@ -25,7 +25,7 @@
 #include <stdbool.h>
 #include "HD44780_LCD_I2C.h"
 
-#include "RTC.h"
+#include "RTC_LL.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
